@@ -1,0 +1,56 @@
+{
+ "policy": {
+  "required": [
+   {
+    "key": "Environment",
+    "values": ["prod", "staging", "dev"]
+   },
+   {
+    "key": "Owner",
+    "pattern": "[a-z]+\\.[a-z]+"
+   },
+   {
+    "key": "CostCenter",
+    "pattern": "CC-[0-9]{4}"
+   },
+   {
+    "key": "DataClass",
+    "values": ["public", "internal", "confidential"],
+    "kinds": ["bucket", "database"]
+   }
+  ],
+  "forbidden_keys": ["temp-password"],
+  "max_tags": 10
+ },
+ "resources": [
+  {
+   "name": "orders-db",
+   "kind": "database",
+   "tags": {
+    "Environment": "prod",
+    "Owner": "rajat.kumar",
+    "CostCenter": "CC-1001",
+    "DataClass": "confidential"
+   }
+  },
+  {
+   "name": "web-vm",
+   "kind": "compute",
+   "tags": {
+    "Environment": "staging",
+    "Owner": "rajat.kumar",
+    "CostCenter": "CC-1002"
+   }
+  },
+  {
+   "name": "assets",
+   "kind": "bucket",
+   "tags": {
+    "Environment": "dev",
+    "Owner": "rajat.kumar",
+    "CostCenter": "CC-1002",
+    "DataClass": "public"
+   }
+  }
+ ]
+}
