@@ -1,0 +1,71 @@
+{
+ "policy": {
+  "required": [
+   {
+    "key": "Environment",
+    "values": [
+     "prod",
+     "staging",
+     "dev"
+    ]
+   },
+   {
+    "key": "Owner",
+    "pattern": "[a-z]+\\.[a-z]+"
+   },
+   {
+    "key": "CostCenter",
+    "pattern": "CC-[0-9]{4}"
+   },
+   {
+    "key": "Project"
+   }
+  ],
+  "forbidden_keys": [
+   "db-password"
+  ],
+  "max_tags": 5
+ },
+ "resources": [
+  {
+   "name": "bare-vm",
+   "kind": "compute",
+   "tags": {}
+  },
+  {
+   "name": "messy-db",
+   "kind": "database",
+   "tags": {
+    "Environment": "production",
+    "Owner": "RAJAT",
+    "CostCenter": "costcenter-12",
+    "Env": "prod",
+    "environment": "staging",
+    "db-password": "hunter2",
+    "ticket": "INC-1",
+    "team": "ops",
+    "region-note": "mumbai"
+   }
+  },
+  {
+   "name": "blank-bucket",
+   "kind": "bucket",
+   "tags": {
+    "Environment": "Development",
+    "Owner": " ",
+    "CostCenter": "CC-9999",
+    "Project": "migration"
+   }
+  },
+  {
+   "name": "ok-vm",
+   "kind": "compute",
+   "tags": {
+    "Environment": "dev",
+    "Owner": "rajat.kumar",
+    "CostCenter": "CC-1001",
+    "Project": "migration"
+   }
+  }
+ ]
+}
