@@ -4,13 +4,38 @@ import argparse
 import json
 import sys
 
-from . import analysis, model, sarif
+from . import analysis, importer, model, sarif
 
 DISCLAIMER = ("Review priorities from a simplified model of resource tags. "
               "Not tested against a live tenancy; calls no OCI API; not a compliance certification.")
 
 
+def _import_main(argv) -> int:
+    ap = argparse.ArgumentParser(prog="tag-check import",
+                                 description="Convert an OCI-style tagging export into the simplified inventory JSON. "
+                                             "Reads a file you already have; does not call the OCI API.")
+    ap.add_argument("export")
+    ap.add_argument("--output", "-o", help="write the inventory here (default stdout)")
+    a = ap.parse_args(argv)
+    try:
+        inv = importer.load_export(a.export)
+    except (OSError, json.JSONDecodeError, importer.ImportError) as e:
+        print(f"error: {e}", file=sys.stderr)
+        return 1
+    out = json.dumps(inv, indent=1) + "\n"
+    if a.output:
+        with open(a.output, "w", encoding="utf-8") as fh:
+            fh.write(out)
+        print(f"wrote {len(inv['resources'])} resource(s) to {a.output}", file=sys.stderr)
+    else:
+        sys.stdout.write(out)
+    return 0
+
+
 def main(argv=None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv[:1] == ["import"]:
+        return _import_main(argv[1:])
     ap = argparse.ArgumentParser(prog="tag-check", description="Offline tag governance check (synthetic/exported data).")
     ap.add_argument("inventory")
     ap.add_argument("--output")
