@@ -23,3 +23,7 @@ jobs:
         run: tag-check examples/risky.json --output report.json --fail-on high || test $? -eq 2
       - name: CLI smoke (SARIF output)
         run: tag-check examples/risky.json --output report.sarif --format sarif
+      - name: CLI smoke (import round trip)
+        run: |
+          tag-check import examples/export.json -o /tmp/inventory.json
+          tag-check /tmp/inventory.json

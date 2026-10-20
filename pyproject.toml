@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "oci-tagging-policy-check"
-version = "0.1.0"
+version = "0.2.0"
 description = "Offline tag governance checker for OCI-style resources: required tags, allowed values, patterns and sensitive keys on synthetic inventories"
 requires-python = ">=3.10"
 readme = "README.md"

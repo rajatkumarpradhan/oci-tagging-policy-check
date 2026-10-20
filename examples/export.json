@@ -1,0 +1,51 @@
+{
+ "items": [
+  {
+   "resource-type": "Instance",
+   "identifier": "ocid1.instance.oc1.ap-mumbai-1.exampleinstance0001",
+   "display-name": "web-vm",
+   "compartment-id": "ocid1.compartment.oc1..examplecmp0001",
+   "freeform-tags": {
+    "Environment": "staging",
+    "Owner": "rajat.kumar"
+   },
+   "defined-tags": {
+    "Operations": {
+     "CostCenter": "CC-1002"
+    }
+   }
+  },
+  {
+   "resource-type": "Bucket",
+   "identifier": "ocid1.bucket.oc1.ap-mumbai-1.examplebucket0002",
+   "display-name": "assets",
+   "compartment-id": "ocid1.compartment.oc1..examplecmp0001",
+   "freeform-tags": {
+    "Environment": "dev",
+    "Owner": "rajat.kumar",
+    "DataClass": "public"
+   },
+   "defined-tags": {
+    "Operations": {
+     "CostCenter": "CC-1002"
+    }
+   }
+  },
+  {
+   "resource-type": "DbSystem",
+   "identifier": "ocid1.dbsystem.oc1.ap-mumbai-1.exampledb0003",
+   "display-name": "orders-db",
+   "compartment-id": "ocid1.compartment.oc1..examplecmp0001",
+   "freeform-tags": {
+    "Environment": "prod",
+    "Owner": "rajat.kumar",
+    "DataClass": "confidential"
+   },
+   "defined-tags": {
+    "Operations": {
+     "CostCenter": "CC-1001"
+    }
+   }
+  }
+ ]
+}
