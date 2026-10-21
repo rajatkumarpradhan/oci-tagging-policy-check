@@ -17,14 +17,16 @@ RULES = {
     "TG008": "Two tags differ only by case",
     "TG009": "Tag is not covered by any policy rule",
     "TG010": "Required tag accepts any value",
+    "TG011": "Exception is expired, unknown or unused",
 }
 
 
-def to_sarif(findings: list[Finding], artifact_uri: str, version: str = "0.1.0") -> dict:
+def to_sarif(findings: list[Finding], artifact_uri: str, version: str = "0.3.0", suppressed=None) -> dict:
+    """suppressed: optional list of (Finding, ExceptionEntry) pairs, emitted with a SARIF suppression."""
     rules = [{"id": r, "shortDescription": {"text": t}} for r, t in sorted(RULES.items())]
     index = {r["id"]: i for i, r in enumerate(rules)}
     results = []
-    for f in findings:
+    for f, mark in [(f, None) for f in findings] + [(f, e) for f, e in (suppressed or [])]:
         res = {"ruleId": f.rule, "level": LEVEL[f.severity], "message": {"text": f.message},
                "locations": [{"physicalLocation": {"artifactLocation": {"uri": artifact_uri}},
                               "logicalLocations": [{"name": f.subject}]}]}
@@ -32,6 +34,9 @@ def to_sarif(findings: list[Finding], artifact_uri: str, version: str = "0.1.0")
             res["ruleIndex"] = index[f.rule]
         if f.evidence:
             res["properties"] = {"evidence": f.evidence}
+        if mark is not None:
+            res["suppressions"] = [{"kind": "external",
+                                    "justification": f"Exception until {mark.expires.isoformat()}: {mark.reason}"}]
         results.append(res)
     return {"$schema": SCHEMA, "version": "2.1.0",
             "runs": [{"tool": {"driver": {"name": "oci-tagging-policy-check", "version": version, "rules": rules}}, "results": results}]}
