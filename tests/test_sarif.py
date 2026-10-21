@@ -27,8 +27,8 @@ class SarifTests(unittest.TestCase):
     def test_rules_cover_all_and_indexes_match(self):
         run = to_sarif(findings(), "x")["runs"][0]
         rules = run["tool"]["driver"]["rules"]
-        self.assertEqual(len(rules), 10)
-        self.assertEqual({f.rule for f in findings()}, set(RULES))
+        self.assertEqual(len(rules), 11)   # TG001-TG011 (TG011 only appears with --exceptions)
+        self.assertLessEqual({f.rule for f in findings()}, set(RULES))
         for r in run["results"]:
             self.assertEqual(rules[r["ruleIndex"]]["id"], r["ruleId"])
 
