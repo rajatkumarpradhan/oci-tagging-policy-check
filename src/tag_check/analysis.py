@@ -3,10 +3,13 @@ from __future__ import annotations
 
 import re
 from dataclasses import asdict, dataclass
+from datetime import date
 
 from .model import Inventory
 
 SEV = {"high": 0, "medium": 1, "low": 2}
+KNOWN = {f"TG{n:03d}" for n in range(1, 12)}
+EXCEPTION_RULE = "TG011"
 SENSITIVE = ("password", "passwd", "secret", "token", "apikey", "api_key", "private_key", "privatekey", "credential")
 
 
@@ -88,3 +91,48 @@ def analyze(inv: Inventory) -> list[Finding]:
 
     out.sort(key=lambda f: (SEV[f.severity], f.rule, f.subject, f.message))
     return out
+
+
+def apply_exceptions(findings: list[Finding], exceptions, today: date):
+    """Split findings into (active, suppressed, notes) using exception entries.
+
+    An exception suppresses findings whose rule, resource (subject "resource:<name>")
+    and, when the exception names a tag, tag evidence match exactly. It is active
+    through its expiry date. Expired, unknown-rule or never-matching exceptions
+    produce a low TG011 finding so they cannot silently rot. Policy-level findings
+    (TG010) have no resource subject, so exceptions never match them.
+    """
+    candidates, notes = [], []
+    for e in exceptions:
+        if e.rule not in KNOWN:
+            notes.append(Finding(EXCEPTION_RULE, "low", f"exception:{e.rule}:{e.resource}",
+                                 f"Exception references unknown rule {e.rule!r}.",
+                                 {"rule": e.rule, "resource": e.resource}))
+        elif e.expires < today:
+            notes.append(Finding(EXCEPTION_RULE, "low", f"exception:{e.rule}:{e.resource}",
+                                 f"Exception expired {e.expires.isoformat()}; renew it or let the finding stand.",
+                                 {"rule": e.rule, "resource": e.resource, "expires": e.expires.isoformat()}))
+        else:
+            candidates.append(e)
+    used = [False] * len(candidates)
+
+    def matches(e, f):
+        return (f.rule == e.rule and f.subject == f"resource:{e.resource}"
+                and (e.tag is None or f.evidence.get("tag") == e.tag))
+
+    active, suppressed = [], []
+    for f in findings:
+        hit = next((i for i, e in enumerate(candidates) if matches(e, f)), None)
+        if hit is None:
+            active.append(f)
+        else:
+            used[hit] = True
+            suppressed.append((f, candidates[hit]))
+    for i, e in enumerate(candidates):
+        if not used[i]:
+            notes.append(Finding(EXCEPTION_RULE, "low", f"exception:{e.rule}:{e.resource}",
+                                 f"Exception for {e.rule} on resource:{e.resource} matched no finding; "
+                                 "delete it or fix the reference.",
+                                 {"rule": e.rule, "resource": e.resource}))
+    notes.sort(key=lambda f: (f.subject, f.message))
+    return active, suppressed, notes
