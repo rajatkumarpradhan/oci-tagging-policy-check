@@ -1,0 +1,23 @@
+{
+ "exceptions": [
+  {
+   "rule": "TG004",
+   "resource": "messy-db",
+   "tag": "db-password",
+   "expires": "2099-12-31",
+   "reason": "Synthetic demo: accepted while the legacy image is rebuilt; tracked in INC-1."
+  },
+  {
+   "rule": "TG006",
+   "resource": "bare-vm",
+   "expires": "2020-01-01",
+   "reason": "Synthetic demo: expired exception, reported as TG011."
+  },
+  {
+   "rule": "TG999",
+   "resource": "bare-vm",
+   "expires": "2099-12-31",
+   "reason": "Synthetic demo: unknown rule reference, reported as TG011."
+  }
+ ]
+}

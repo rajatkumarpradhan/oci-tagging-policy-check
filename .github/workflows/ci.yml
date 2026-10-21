@@ -27,3 +27,5 @@ jobs:
         run: |
           tag-check import examples/export.json -o /tmp/inventory.json
           tag-check /tmp/inventory.json
+      - name: CLI smoke (exceptions file)
+        run: tag-check examples/risky.json --exceptions examples/exceptions.json
